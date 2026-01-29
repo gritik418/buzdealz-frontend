@@ -86,3 +86,15 @@ export const dealsApi = {
     return backendDeal ? mapBackendDeal(backendDeal) : null;
   },
 };
+
+export const notificationsApi = {
+  getNotifications: async () => {
+    const { data } = await api.get('/notifications');
+    return data.data; // Array of notifications
+  },
+  markAsRead: async () => {
+    const { data } = await api.post('/notifications/mark-as-read');
+    return data;
+  }
+};
+

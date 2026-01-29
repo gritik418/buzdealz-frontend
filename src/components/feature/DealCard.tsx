@@ -1,8 +1,8 @@
-import { Heart, Bell, ExternalLink, TrendingDown, ShoppingBag } from 'lucide-react';
+import { Heart, Bell, TrendingDown, ShoppingBag } from 'lucide-react';
 import type { Deal } from '@/types';
 import { Card, CardContent, CardFooter } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+
 import { useWishlist } from '@/store/useWishlist';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -122,26 +122,13 @@ export const DealCard = ({ deal }: DealCardProps) => {
           </CardContent>
 
           <CardFooter className="p-6 pt-0 gap-3 mt-auto">
-            <Button 
-              disabled={isExpired}
-              className="w-full gap-2 rounded-xl h-12 text-sm font-black uppercase tracking-wider shadow-lg shadow-primary-500/20" 
-              variant={isExpired ? "outline" : "default"}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // Redirect to external store if it was a real app
-              }}
-            >
-               {isExpired ? 'Deal Ended' : 'Grab Deal'} <ExternalLink className="w-4 h-4" />
-            </Button>
-            
             {isWishlisted && (
                <motion.button
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   onClick={handleAlertClick}
                   className={cn(
-                    "p-3 rounded-xl border-2 transition-all duration-300",
+                    "w-full py-3 flex items-center justify-center gap-2 rounded-xl border-2 transition-all duration-300",
                     alertEnabled
                       ? "bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20"
                       : "bg-white border-slate-100 text-slate-400 hover:border-slate-200 hover:text-slate-600"
@@ -149,9 +136,13 @@ export const DealCard = ({ deal }: DealCardProps) => {
                   title={alertEnabled ? "Price alerts enabled" : "Enable price alerts"}
                >
                   <Bell className={cn("w-5 h-5", alertEnabled && "fill-current")} />
+                  <span className="text-xs font-black uppercase tracking-widest">
+                    {alertEnabled ? 'Alerts On' : 'Enable Alerts'}
+                  </span>
                </motion.button>
             )}
           </CardFooter>
+
         </Card>
       </Link>
     </div>

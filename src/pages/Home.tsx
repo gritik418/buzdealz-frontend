@@ -1,13 +1,13 @@
+import { useLayoutEffect, useRef } from 'react';
 import { DealCard } from '@/components/feature/DealCard';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { dealsApi } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import { dealsApi } from '@/lib/api';
+import { Badge } from '@/components/ui/Badge';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, Loader2, Mail, Zap } from 'lucide-react';
-import { useLayoutEffect, useRef } from 'react';
-
+import { Zap, ShieldCheck, ArrowRight, Mail, Loader2, Target } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -110,6 +110,14 @@ export const Home = () => {
                 Buzdealz tracks thousands of exclusive discounts across premium brands so you never overpay again.
               </p>
 
+              <div className="flex flex-wrap items-center gap-5">
+                 <Button className="h-14 px-8 rounded-2xl bg-slate-900 hover:bg-black text-white text-lg font-black shadow-2xl shadow-slate-900/20 group">
+                    Explore Deals <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                 </Button>
+                 <Button variant="ghost" className="h-14 px-8 rounded-2xl text-slate-600 text-lg font-bold border-2 border-slate-100 bg-white shadow-sm hover:border-primary-100 hover:text-primary-600">
+                    How it Works
+                 </Button>
+              </div>
             </div>
 
             <div className="hero-image-container relative">
@@ -137,6 +145,69 @@ export const Home = () => {
         </div>
       </section>
 
+      {/* Gold Standard Section */}
+      <section className="features-section py-32 bg-slate-900 relative overflow-hidden">
+        {/* Background Decorative Elements */}
+        <div className="absolute top-0 right-0 w-full h-full pointer-events-none overflow-hidden opacity-30">
+          <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square bg-primary-500/20 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] aspect-square bg-violet-500/20 rounded-full blur-[120px]" />
+        </div>
+
+        <div className="container mx-auto px-6 max-w-7xl relative z-10">
+           <div className="text-center max-w-3xl mx-auto mb-20">
+              <Badge variant="outline" className="text-primary-400 border-primary-500/30 mb-6 px-4 py-1.5 rounded-full font-black tracking-widest uppercase text-xs">
+                The Gold Standard
+              </Badge>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight leading-tight">
+                Engineered for <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-violet-400">Extreme Savings.</span>
+              </h2>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { 
+                  title: 'Instant Detection', 
+                  desc: 'Our proprietary high-frequency crawlers scan retail giants every 60 seconds for unauthorized price drops.', 
+                  icon: Zap,
+                  gradient: 'from-blue-600/20 to-cyan-500/20',
+                  iconColor: 'text-blue-400'
+                },
+                { 
+                  title: 'Elite Verification', 
+                  desc: 'Every single deal is manually verified by our team of expert analysts to ensure 100% authenticity.', 
+                  icon: ShieldCheck,
+                  gradient: 'from-primary-600/20 to-violet-600/20',
+                  iconColor: 'text-primary-400'
+                },
+                { 
+                  title: 'Flash Precision', 
+                  desc: 'Algorithm-driven history tracking tells you exactly when to buy and when to wait for the ultimate low.', 
+                  icon: Target,
+                  gradient: 'from-rose-600/20 to-amber-500/20',
+                  iconColor: 'text-rose-400'
+                }
+              ].map((feature, i) => (
+                <div key={i} className="feature-card group relative p-px bg-gradient-to-b from-white/20 to-transparent rounded-[2.5rem] hover:from-primary-500/50 transition-all duration-500">
+                   <div className="relative p-10 bg-slate-800/40 backdrop-blur-3xl rounded-[2.4rem] h-full border border-white/5 group-hover:bg-slate-800/80 transition-all duration-500 flex flex-col">
+                      <div className={cn("w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-8 shadow-2xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500", feature.gradient)}>
+                         <feature.icon className={cn("w-8 h-8", feature.iconColor)} />
+                      </div>
+                      <h4 className="text-2xl font-black text-white mb-4 group-hover:text-primary-400 transition-colors">{feature.title}</h4>
+                      <p className="text-slate-400 font-bold leading-relaxed mb-8 flex-1">{feature.desc}</p>
+                      
+                      <button className="flex items-center gap-2 text-primary-400 text-sm font-black uppercase tracking-widest group/btn w-fit">
+                         <span className="relative overflow-hidden inline-block">
+                            <span className="inline-block transition-transform duration-300 group-hover/btn:-translate-y-full">Core Specs</span>
+                            <span className="absolute top-0 left-0 inline-block transition-transform duration-300 translate-y-full group-hover/btn:translate-y-0">Learn More</span>
+                         </span>
+                         <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </button>
+                   </div>
+                </div>
+              ))}
+           </div>
+        </div>
+      </section>
 
       {/* Featured Deals Grid */}
       <section className="py-24 px-6 overflow-visible max-w-7xl mx-auto">
@@ -147,7 +218,6 @@ export const Home = () => {
                  Premium Curated Selection
               </Badge>
               <h3 className="text-5xl font-black text-slate-900 tracking-tight leading-none">Today's Hot Picks</h3>
-              <p className="text-slate-400 mt-4 text-lg font-bold">Limited time offers, moving fast.</p>
             </div>
             <Button variant="ghost" className="hidden sm:flex items-center gap-2 font-black text-primary-600 hover:text-white hover:bg-primary-600 transition-all rounded-xl h-12 px-6">
                View All Deals <ArrowRight className="w-4 h-4" />
@@ -195,7 +265,6 @@ export const Home = () => {
                         Invite Me
                      </Button>
                   </div>
-                  <p className="mt-6 text-xs text-slate-500 font-bold uppercase tracking-widest">NO SPAM. JUST SAVINGS. UNSUBSCRIBE ANYTIME.</p>
                </div>
             </div>
          </div>

@@ -1,13 +1,22 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode, useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { wishlistApi, authApi } from '@/lib/api';
+import { wishlistApi, authApi, notificationsApi } from '@/lib/api';
 import type { Deal, WishlistItem } from '../types/index';
 import { toast } from 'sonner';
 
 interface User {
   id: number;
   email: string;
+  name: string;
   isSubscriber: boolean;
+}
+
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
 interface WishlistContextType {
@@ -21,12 +30,16 @@ interface WishlistContextType {
   user: User | null;
   isAuthenticated: boolean;
   logout: () => void;
+  notifications: Notification[];
+  unreadCount: number;
+  markNotificationsAsRead: () => void;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
+  const [prevNotifCount, setPrevNotifCount] = useState<number | null>(null);
   
   const { data: user = null, isLoading: isLoadingUser } = useQuery({
     queryKey: ['me'],
@@ -42,6 +55,38 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     queryFn: wishlistApi.getWishlist,
     enabled: isAuthenticated,
     placeholderData: [],
+  });
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: notificationsApi.getNotifications,
+    enabled: isAuthenticated,
+    refetchInterval: 5000, // Check for drops every 5 seconds for responsive feedback
+  });
+
+  const unreadCount = notifications.filter((n: Notification) => !n.isRead).length;
+
+  // Show toast for new notifications
+  useEffect(() => {
+    if (notifications.length > 0) {
+      if (prevNotifCount !== null && notifications.length > prevNotifCount) {
+        const latest = notifications[0];
+        toast.success(latest.title, {
+          description: latest.message,
+          duration: 10000,
+        });
+      }
+      setPrevNotifCount(notifications.length);
+    } else {
+      setPrevNotifCount(0);
+    }
+  }, [notifications, prevNotifCount]);
+
+  const markAsReadMutation = useMutation({
+    mutationFn: notificationsApi.markAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
   });
 
   const addMutation = useMutation({
@@ -85,6 +130,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     onSuccess: () => {
       queryClient.setQueryData(['me'], null);
       queryClient.setQueryData(['wishlist'], []);
+      queryClient.setQueryData(['notifications'], []);
       toast.success('Logged out successfully');
     },
   });
@@ -120,6 +166,10 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     return wishlist.some(item => item.id === dealId);
   };
 
+  const markNotificationsAsRead = () => {
+    markAsReadMutation.mutate();
+  };
+
   const logout = () => {
     logoutMutation.mutate();
   };
@@ -135,7 +185,10 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       isSubscriber,
       user,
       isAuthenticated,
-      logout
+      logout,
+      notifications,
+      unreadCount,
+      markNotificationsAsRead
     }}>
       {children}
     </WishlistContext.Provider>
@@ -149,5 +202,3 @@ export const useWishlist = () => {
   }
   return context;
 };
-
-
