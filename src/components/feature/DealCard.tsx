@@ -34,12 +34,14 @@ export const DealCard = ({ deal }: DealCardProps) => {
     }
   };
 
+  const isExpired = new Date(deal.expiryDate) < new Date();
+
   return (
-    <div className="h-full group/card transition-all duration-300">
+    <div className={cn("h-full group/card transition-all duration-300", isExpired && "opacity-75 grayscale-[0.5]")}>
       <Card className="h-full overflow-hidden flex flex-col relative border-slate-100 bg-white shadow-sm hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-500 rounded-2xl border-2 hover:border-primary-100">
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
           <img 
-            src={deal.image} 
+            src={deal.image || "/Users/ritikgupta/.gemini/antigravity/brain/e9d6a55b-23fe-4390-8d0a-be2cf7d20845/placeholder_deal_1769154352834.png"} 
             alt={deal.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
           />
@@ -62,7 +64,11 @@ export const DealCard = ({ deal }: DealCardProps) => {
           </div>
 
           <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-            {deal.discount > 0 && (
+            {isExpired ? (
+              <Badge variant="secondary" className="font-bold shadow-lg px-3 py-1 bg-slate-500 text-white rounded-lg">
+                EXPIRED
+              </Badge>
+            ) : deal.discount > 0 && (
               <Badge variant="destructive" className="font-bold shadow-lg px-3 py-1 bg-red-600 text-white rounded-lg">
                 -{deal.discount}% OFF
               </Badge>
@@ -79,7 +85,7 @@ export const DealCard = ({ deal }: DealCardProps) => {
             <span className="text-[10px] font-bold text-primary-600 uppercase tracking-widest bg-primary-50 px-2 py-0.5 rounded-md">
               {deal.category}
             </span>
-            <span className="text-[10px] text-slate-400 font-bold">• STOCKED</span>
+            <span className="text-[10px] text-slate-400 font-bold">• {isExpired ? 'OUT OF STOCK' : 'STOCKED'}</span>
           </div>
           
           <h3 className="font-bold text-lg leading-tight line-clamp-2 mb-3 text-slate-900 group-hover/card:text-primary-700 transition-colors">
@@ -87,7 +93,7 @@ export const DealCard = ({ deal }: DealCardProps) => {
           </h3>
           
           <div className="flex items-center gap-3 mb-4">
-            <div className="text-3xl font-black text-slate-900 leading-none">
+            <div className={cn("text-3xl font-black text-slate-900 leading-none", isExpired && "text-slate-400")}>
               <span className="text-xl inline-block mr-0.5 align-top mt-1.5">$</span>
               {deal.price}
             </div>
@@ -99,7 +105,7 @@ export const DealCard = ({ deal }: DealCardProps) => {
           </div>
           
           <AnimatePresence>
-            {deal.bestPrice && deal.price > deal.bestPrice && (
+            {!isExpired && deal.bestPrice && deal.price > deal.bestPrice && (
                <motion.div 
                  initial={{ opacity: 0, height: 0 }}
                  animate={{ opacity: 1, height: 'auto' }}
@@ -113,9 +119,15 @@ export const DealCard = ({ deal }: DealCardProps) => {
         </CardContent>
 
         <CardFooter className="p-6 pt-0 gap-3 mt-auto">
-          <Button className="w-full gap-2 rounded-xl h-12 text-sm font-black uppercase tracking-wider shadow-lg shadow-primary-500/20" variant="default">
-             Grab Deal <ExternalLink className="w-4 h-4" />
+          <Button 
+            disabled={isExpired}
+            className="w-full gap-2 rounded-xl h-12 text-sm font-black uppercase tracking-wider shadow-lg shadow-primary-500/20" 
+            variant={isExpired ? "outline" : "default"}
+          >
+             {isExpired ? 'Deal Ended' : 'Grab Deal'} <ExternalLink className="w-4 h-4" />
           </Button>
+
+
           
           {isWishlisted && (
              <motion.button
