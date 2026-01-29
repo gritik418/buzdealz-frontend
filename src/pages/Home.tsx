@@ -1,10 +1,11 @@
 import { useLayoutEffect, useRef } from 'react';
 import { DealCard } from '@/components/feature/DealCard';
-import { dummyDeals } from '@/data/dummyDeals';
+import { useQuery } from '@tanstack/react-query';
+import { dealsApi } from '@/lib/api';
 import { Badge } from '@/components/ui/Badge';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Zap, ShieldCheck, Clock, ArrowRight, Mail, LayoutGrid, Laptop, Shirt, Home as HomeIcon, Smartphone } from 'lucide-react';
+import { Zap, ShieldCheck, Clock, ArrowRight, Mail, LayoutGrid, Laptop, Shirt, Home as HomeIcon, Smartphone, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,11 @@ export const Home = () => {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
+
+  const { data: deals = [], isLoading, isError } = useQuery({
+    queryKey: ['deals'],
+    queryFn: dealsApi.getDeals,
+  });
 
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
@@ -60,19 +66,21 @@ export const Home = () => {
         ease: 'power2.out'
       });
 
-      // Grid Animation
-      gsap.from('.deal-card-wrapper', {
-        scrollTrigger: {
-          trigger: gridRef.current,
-          start: 'top 85%',
-        },
-        y: 60,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out',
-        clearProps: 'all'
-      });
+      if (!isLoading && deals.length > 0) {
+        // Grid Animation
+        gsap.from('.deal-card-wrapper', {
+          scrollTrigger: {
+            trigger: gridRef.current,
+            start: 'top 85%',
+          },
+          y: 60,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: 'power3.out',
+          clearProps: 'all'
+        });
+      }
 
       // Features section staggered entrance
       gsap.from('.feature-card', {
@@ -90,7 +98,7 @@ export const Home = () => {
     }, mainRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isLoading, deals.length]);
 
   return (
     <main ref={mainRef} className="min-h-screen bg-white pb-20 overflow-hidden">
@@ -108,7 +116,7 @@ export const Home = () => {
               <div ref={badgeRef}>
                 <Badge variant="secondary" className="mb-8 px-5 py-2 text-sm font-bold text-primary-700 bg-primary-50 border-primary-100 hover:bg-primary-100 transition-colors shadow-sm rounded-full inline-flex items-center gap-2">
                   <span className="flex h-2 w-2 rounded-full bg-primary-600 animate-pulse" />
-                  LIVE DROPS: 1,429 SAVINGS ACTIVE
+                  LIVE DROPS: {deals.length}+ SAVINGS ACTIVE
                 </Badge>
               </div>
               
@@ -212,13 +220,25 @@ export const Home = () => {
             </Button>
           </div>
           
-          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {dummyDeals.map((deal) => (
-              <div key={deal.id} className="deal-card-wrapper">
-                <DealCard deal={deal} />
-              </div>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Loader2 className="w-12 h-12 text-primary-600 animate-spin mb-4" />
+              <p className="text-slate-500 font-bold">Hunting for the best deals...</p>
+            </div>
+          ) : isError ? (
+            <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+               <p className="text-slate-500 font-bold">Failed to load deals. Please try again later.</p>
+            </div>
+          ) : (
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {deals.map((deal: any) => (
+                <div key={deal.id} className="deal-card-wrapper">
+                  <DealCard deal={deal} />
+                </div>
+              ))}
+            </div>
+
+          )}
         </div>
       </section>
 
@@ -250,3 +270,4 @@ export const Home = () => {
     </main>
   );
 };
+

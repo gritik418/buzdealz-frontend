@@ -4,8 +4,11 @@ import { Navbar } from '@/components/feature/Navbar';
 import { Home } from '@/pages/Home';
 import { Wishlist } from '@/pages/Wishlist';
 import { DealDetails } from '@/pages/DealDetails';
+import { Login } from '@/pages/Login';
+import { Register } from '@/pages/Register';
 import { Toaster } from 'sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,7 +29,10 @@ function App() {
             <Route path="/" component={Home} />
             <Route path="/wishlist" component={Wishlist} />
             <Route path="/deal/:id" component={DealDetails} />
+            <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
             {/* Fallback 404 */}
+
             <Route>
               <div className="p-20 text-center">
                  <h1 className="text-4xl font-bold mb-4">404</h1>

@@ -1,9 +1,10 @@
 import { useRoute } from 'wouter';
-import { dummyDeals } from '@/data/dummyDeals';
 import { useWishlist } from '@/store/useWishlist';
+import { useQuery } from '@tanstack/react-query';
+import { dealsApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Heart, Bell, ShoppingBag, ExternalLink, Clock, ShieldCheck, ChevronLeft, TrendingDown } from 'lucide-react';
+import { Heart, Bell, ShoppingBag, ExternalLink, Clock, ShieldCheck, ChevronLeft, TrendingDown, Loader2 } from 'lucide-react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -12,13 +13,27 @@ export const DealDetails = () => {
   const [, params] = useRoute('/deal/:id');
   const { addToWishlist, removeFromWishlist, isInWishlist, toggleAlert, wishlist, isSubscriber } = useWishlist();
   
-  const deal = dummyDeals.find(d => d.id === params?.id);
+  const { data: deal, isLoading, isError } = useQuery({
+    queryKey: ['deal', params?.id],
+    queryFn: () => dealsApi.getDeal(params!.id),
+    enabled: !!params?.id,
+  });
   
-  if (!deal) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="w-12 h-12 text-primary-600 animate-spin mb-4" />
+        <p className="text-slate-500 font-bold">Loading deal specifications...</p>
+      </div>
+    );
+  }
+
+  if (isError || !deal) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center p-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
           <h2 className="text-2xl font-bold mb-4">Deal not found</h2>
+          <p className="text-slate-500 mb-8">The deal you're looking for might have vanished into thin air.</p>
           <Link href="/">
             <Button>Back to Deals</Button>
           </Link>
@@ -167,3 +182,4 @@ export const DealDetails = () => {
     </main>
   );
 };
+

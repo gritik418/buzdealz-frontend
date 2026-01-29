@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'wouter';
-import { ShoppingBag, Heart, Menu, Search, User, Bell, Sparkles } from 'lucide-react';
+import { ShoppingBag, Heart, Menu, Search, User, Bell, Sparkles, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useWishlist } from '@/store/useWishlist';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 
 export const Navbar = () => {
   const [location] = useLocation();
-  const { wishlist } = useWishlist();
+  const { wishlist, user, isAuthenticated, logout } = useWishlist();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -60,7 +60,7 @@ export const Navbar = () => {
                   Buzdealz
                 </span>
                 <span className="text-[10px] font-bold text-primary-600 tracking-[0.2em] uppercase leading-none mt-1 flex items-center gap-1">
-                  Premium <Sparkles className="w-2.5 h-2.5" />
+                  Premium {user?.isSubscriber && <Sparkles className="w-2.5 h-2.5" />}
                 </span>
               </div>
            </Link>
@@ -92,7 +92,7 @@ export const Navbar = () => {
         <div className="flex items-center gap-3 md:gap-5">
            <button className="hidden md:flex p-2 text-slate-400 hover:text-primary-600 transition-colors relative">
              <Bell className="w-5 h-5" />
-             <span className="absolute top-2 right-2 w-2 h-2 bg-primary-500 rounded-full border-2 border-white"></span>
+             {isAuthenticated && <span className="absolute top-2 right-2 w-2 h-2 bg-primary-500 rounded-full border-2 border-white"></span>}
            </button>
 
            <Link 
@@ -121,10 +121,31 @@ export const Navbar = () => {
 
            <div className="hidden md:block w-px h-8 bg-slate-200 mx-1 opacity-50"></div>
 
-           <Button className="hidden md:flex gap-2 rounded-xl bg-slate-900 hover:bg-black text-white px-5 h-11 shadow-xl shadow-slate-900/10 font-bold transition-all hover:-translate-y-0.5" size="sm">
-             <User className="w-4 h-4" />
-             Account
-           </Button>
+           {isAuthenticated ? (
+             <div className="flex items-center gap-2">
+                <div className="hidden lg:block text-right">
+                  <p className="text-xs font-black text-slate-900 leading-none truncate max-w-[120px]">{user?.email}</p>
+                  <p className="text-[10px] font-bold text-primary-600 uppercase tracking-widest mt-0.5">{user?.isSubscriber ? 'Pro Member' : 'Free Plan'}</p>
+                </div>
+                <Button 
+                  onClick={logout}
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-xl h-11 w-11 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                  title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                </Button>
+             </div>
+           ) : (
+             <Link href="/login">
+               <Button className="hidden md:flex gap-2 rounded-xl bg-slate-900 hover:bg-black text-white px-5 h-11 shadow-xl shadow-slate-900/10 font-bold transition-all hover:-translate-y-0.5" size="sm">
+                 <User className="w-4 h-4" />
+                 Account
+               </Button>
+             </Link>
+           )}
+
 
            <Button 
             variant="ghost" 
@@ -139,3 +160,4 @@ export const Navbar = () => {
     </header>
   );
 };
+

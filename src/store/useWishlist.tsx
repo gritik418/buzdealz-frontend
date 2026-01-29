@@ -1,8 +1,14 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { wishlistApi } from '@/lib/api';
+import { wishlistApi, authApi } from '@/lib/api';
 import type { Deal, WishlistItem } from '../types/index';
 import { toast } from 'sonner';
+
+interface User {
+  id: number;
+  email: string;
+  isSubscriber: boolean;
+}
 
 interface WishlistContextType {
   wishlist: WishlistItem[];
@@ -11,7 +17,10 @@ interface WishlistContextType {
   removeFromWishlist: (dealId: string) => void;
   toggleAlert: (dealId: string) => void;
   isInWishlist: (dealId: string) => boolean;
-  isSubscriber: boolean; 
+  isSubscriber: boolean;
+  user: User | null;
+  isAuthenticated: boolean;
+  logout: () => void;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
@@ -19,13 +28,19 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   
-  // Mocking subscriber status - in a real app this would come from an auth context
-  const isSubscriber = false; 
+  const { data: user = null, isLoading: isLoadingUser } = useQuery({
+    queryKey: ['me'],
+    queryFn: authApi.getMe,
+    retry: false,
+  });
 
-  const { data: wishlist = [], isLoading } = useQuery({
+  const isAuthenticated = !!user;
+  const isSubscriber = user?.isSubscriber || false;
+
+  const { data: wishlist = [], isLoading: isLoadingWishlist } = useQuery({
     queryKey: ['wishlist'],
     queryFn: wishlistApi.getWishlist,
-    // Fallback to empty array on error to keep UI functional
+    enabled: isAuthenticated,
     placeholderData: [],
   });
 
@@ -34,10 +49,15 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       toast.success('Added to wishlist');
-      // Analytics
       console.log('Analytics: added_to_wishlist');
     },
-    onError: () => toast.error('Failed to add to wishlist'),
+    onError: (error: any) => {
+      if (error.response?.status === 401) {
+        toast.error('Please login to add items to wishlist');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to add to wishlist');
+      }
+    },
   });
 
   const removeMutation = useMutation({
@@ -45,7 +65,6 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       toast.success('Removed from wishlist');
-      // Analytics
       console.log('Analytics: removed_from_wishlist');
     },
     onError: () => toast.error('Failed to remove from wishlist'),
@@ -58,10 +77,25 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       toast.success('Alert settings updated');
     },
-    onError: () => toast.error('Failed to update alert'),
+    onError: (error: any) => toast.error(error.response?.data?.message || 'Failed to update alert'),
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: authApi.logout,
+    onSuccess: () => {
+      queryClient.setQueryData(['me'], null);
+      queryClient.setQueryData(['wishlist'], []);
+      toast.success('Logged out successfully');
+    },
   });
 
   const addToWishlist = (deal: Deal) => {
+    if (!isAuthenticated) {
+      toast.error('Authentication required', {
+        description: 'Please login to start tracking deals.',
+      });
+      return;
+    }
     addMutation.mutate(deal.id);
   };
 
@@ -86,15 +120,22 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     return wishlist.some(item => item.id === dealId);
   };
 
+  const logout = () => {
+    logoutMutation.mutate();
+  };
+
   return (
     <WishlistContext.Provider value={{ 
       wishlist, 
-      isLoading,
+      isLoading: isLoadingWishlist || isLoadingUser,
       addToWishlist, 
       removeFromWishlist, 
       toggleAlert, 
       isInWishlist,
-      isSubscriber
+      isSubscriber,
+      user,
+      isAuthenticated,
+      logout
     }}>
       {children}
     </WishlistContext.Provider>
@@ -108,4 +149,5 @@ export const useWishlist = () => {
   }
   return context;
 };
+
 
