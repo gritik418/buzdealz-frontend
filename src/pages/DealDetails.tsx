@@ -130,17 +130,25 @@ export const DealDetails = () => {
                <div className="flex gap-4">
                   <Button 
                     variant={isWishlisted ? "danger" : "default"}
-                    className="flex-1 h-16 rounded-2xl border-2 font-black text-lg gap-3 shadow-xl"
+                    className={cn(
+                      "flex-1 h-16 rounded-2xl border-2 font-black text-lg gap-3 shadow-xl",
+                      !isWishlisted ? "bg-primary-600 border-primary-600 text-white" : "bg-red-500 border-red-500 text-white"
+                    )}
                     onClick={() => isWishlisted ? removeFromWishlist(deal.id) : addToWishlist(deal)}
                   >
                     <Heart className={cn("w-6 h-6", isWishlisted && "fill-current")} />
-                    {isWishlisted ? 'Remove from Tracking' : 'Start Tracking Price'}
+                    {isWishlisted ? 'Remove Tracking' : 'Start Tracking Price'}
                   </Button>
                   
                   {isWishlisted && (
                      <Button 
                         variant={alertEnabled ? "default" : "outline"}
-                        className={cn("h-16 w-16 rounded-2xl border-2 shrink-0 shadow-xl", alertEnabled && "bg-amber-500 border-amber-500 hover:bg-amber-600")}
+                        className={cn(
+                          "h-16 w-16 rounded-2xl border-2 shrink-0 shadow-xl transition-all", 
+                          alertEnabled 
+                            ? "bg-amber-500 border-amber-500 text-white" 
+                            : "bg-white border-slate-200 text-slate-400 hover:text-primary-600 hover:border-primary-600"
+                        )}
                         onClick={() => toggleAlert(deal.id)}
                         title={alertEnabled ? "Disable Alerts" : "Enable Alerts"}
                      >
