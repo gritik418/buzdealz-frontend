@@ -293,6 +293,77 @@ export const Navbar = () => {
           </Button>
         </div>
       </div>
+      
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden bg-white border-t border-slate-100 overflow-hidden"
+          >
+            <div className="container mx-auto px-6 py-8 flex flex-col gap-6">
+              <Link 
+                href="/" 
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "text-xl font-black transition-colors px-4 py-2 rounded-2xl",
+                  location === "/" ? "bg-primary-50 text-primary-600" : "text-slate-500 hover:text-primary-600 hover:bg-slate-50"
+                )}
+              >
+                All Deals
+              </Link>
+              <Link 
+                href="/wishlist" 
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "text-xl font-black transition-colors px-4 py-2 rounded-2xl flex items-center justify-between",
+                  location === "/wishlist" ? "bg-primary-50 text-primary-600" : "text-slate-500 hover:text-primary-600 hover:bg-slate-50"
+                )}
+              >
+                <span>My Wishlist</span>
+                {wishlistCount > 0 && (
+                  <span className="bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full">{wishlistCount}</span>
+                )}
+              </Link>
+              
+              {!isAuthenticated && (
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-lg">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+              
+              {isAuthenticated && (
+                <div className="pt-6 border-t border-slate-100 flex flex-col gap-6">
+                  <div className="flex items-center gap-4 px-4">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <User className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900">{user?.name}</p>
+                      <p className="text-xs font-bold text-primary-600 uppercase tracking-widest">{user?.isSubscriber ? 'Pro Member' : 'Free Plan'}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    variant="ghost" 
+                    className="w-full h-14 rounded-2xl text-red-500 hover:bg-red-50 font-black flex items-center justify-center gap-2"
+                  >
+                    <LogOut className="w-5 h-5" /> Sign Out
+                  </Button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
+
   );
 };

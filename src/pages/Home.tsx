@@ -5,7 +5,7 @@ import { dealsApi } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, Loader2, Mail, Zap } from "lucide-react";
+import { Loader2, Mail, Zap } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -175,12 +175,6 @@ export const Home = () => {
                 Today's Hot Picks
               </h3>
             </div>
-            <Button
-              variant="ghost"
-              className="hidden sm:flex items-center gap-2 font-black text-primary-600 hover:text-white hover:bg-primary-600 transition-all rounded-xl h-12 px-6"
-            >
-              View All Deals <ArrowRight className="w-4 h-4" />
-            </Button>
           </div>
 
           {isLoading ? (
