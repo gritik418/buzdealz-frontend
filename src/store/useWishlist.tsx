@@ -1,43 +1,85 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { wishlistApi } from '@/lib/api';
 import type { Deal, WishlistItem } from '../types/index';
-
-
+import { toast } from 'sonner';
 
 interface WishlistContextType {
   wishlist: WishlistItem[];
+  isLoading: boolean;
   addToWishlist: (deal: Deal) => void;
   removeFromWishlist: (dealId: string) => void;
   toggleAlert: (dealId: string) => void;
   isInWishlist: (dealId: string) => boolean;
+  isSubscriber: boolean; 
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const [wishlist, setWishlist] = useState<WishlistItem[]>(() => {
-    const saved = localStorage.getItem('buzdealz-wishlist');
-    return saved ? JSON.parse(saved) : [];
+  const queryClient = useQueryClient();
+  
+  // Mocking subscriber status - in a real app this would come from an auth context
+  const isSubscriber = false; 
+
+  const { data: wishlist = [], isLoading } = useQuery({
+    queryKey: ['wishlist'],
+    queryFn: wishlistApi.getWishlist,
+    // Fallback to empty array on error to keep UI functional
+    placeholderData: [],
   });
 
-  useEffect(() => {
-    localStorage.setItem('buzdealz-wishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
+  const addMutation = useMutation({
+    mutationFn: (dealId: string) => wishlistApi.addToWishlist(dealId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+      toast.success('Added to wishlist');
+      // Analytics
+      console.log('Analytics: added_to_wishlist');
+    },
+    onError: () => toast.error('Failed to add to wishlist'),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (dealId: string) => wishlistApi.removeFromWishlist(dealId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+      toast.success('Removed from wishlist');
+      // Analytics
+      console.log('Analytics: removed_from_wishlist');
+    },
+    onError: () => toast.error('Failed to remove from wishlist'),
+  });
+
+  const toggleAlertMutation = useMutation({
+    mutationFn: ({ dealId, enabled }: { dealId: string; enabled: boolean }) => 
+      wishlistApi.toggleAlert(dealId, enabled),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+      toast.success('Alert settings updated');
+    },
+    onError: () => toast.error('Failed to update alert'),
+  });
 
   const addToWishlist = (deal: Deal) => {
-    setWishlist(prev => {
-      if (prev.some(item => item.id === deal.id)) return prev;
-      return [...prev, { ...deal, addedAt: new Date().toISOString(), alertEnabled: false }];
-    });
+    addMutation.mutate(deal.id);
   };
 
   const removeFromWishlist = (dealId: string) => {
-    setWishlist(prev => prev.filter(item => item.id !== dealId));
+    removeMutation.mutate(dealId);
   };
 
   const toggleAlert = (dealId: string) => {
-    setWishlist(prev => prev.map(item => 
-      item.id === dealId ? { ...item, alertEnabled: !item.alertEnabled } : item
-    ));
+    if (!isSubscriber) {
+      toast.error('Only subscribers can enable price alerts!', {
+        description: 'Upgrade to Pro to unlock this feature.',
+      });
+      return;
+    }
+    const item = wishlist.find(i => i.id === dealId);
+    if (item) {
+      toggleAlertMutation.mutate({ dealId, enabled: !item.alertEnabled });
+    }
   };
 
   const isInWishlist = (dealId: string) => {
@@ -45,7 +87,15 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist, toggleAlert, isInWishlist }}>
+    <WishlistContext.Provider value={{ 
+      wishlist, 
+      isLoading,
+      addToWishlist, 
+      removeFromWishlist, 
+      toggleAlert, 
+      isInWishlist,
+      isSubscriber
+    }}>
       {children}
     </WishlistContext.Provider>
   );
@@ -58,3 +108,4 @@ export const useWishlist = () => {
   }
   return context;
 };
+
