@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { dealsApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Heart, Bell, ShoppingBag, ExternalLink, ShieldCheck, ChevronLeft, TrendingDown, Loader2 } from 'lucide-react';
+import { Heart, Bell, ShoppingBag, ShieldCheck, ChevronLeft, TrendingDown, Loader2 } from 'lucide-react';
 
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
@@ -97,7 +97,6 @@ export const DealDetails = () => {
                <div className="flex items-center gap-4 text-slate-400 font-bold">
                   <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Verified Deal</span>
                </div>
-
             </div>
 
             <div className="bg-slate-50 rounded-[2.5rem] p-8 mb-8 border-2 border-slate-100">
@@ -128,27 +127,22 @@ export const DealDetails = () => {
                  </div>
                )}
 
-               <div className="flex flex-wrap gap-4">
+               <div className="flex gap-4">
                   <Button 
-                    disabled={isExpired}
-                    className="flex-1 h-16 rounded-2xl bg-slate-900 hover:bg-black text-white text-lg font-black shadow-2xl shadow-slate-900/20 group"
-                  >
-                     Grab This Deal <ExternalLink className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                  
-                  <Button 
-                    variant={isWishlisted ? "danger" : "outline"}
-                    className="h-16 w-16 rounded-2xl border-2 shrink-0"
+                    variant={isWishlisted ? "danger" : "default"}
+                    className="flex-1 h-16 rounded-2xl border-2 font-black text-lg gap-3 shadow-xl"
                     onClick={() => isWishlisted ? removeFromWishlist(deal.id) : addToWishlist(deal)}
                   >
                     <Heart className={cn("w-6 h-6", isWishlisted && "fill-current")} />
+                    {isWishlisted ? 'Remove from Tracking' : 'Start Tracking Price'}
                   </Button>
-
+                  
                   {isWishlisted && (
                      <Button 
                         variant={alertEnabled ? "default" : "outline"}
-                        className={cn("h-16 w-16 rounded-2xl border-2 shrink-0", alertEnabled && "bg-amber-500 border-amber-500 hover:bg-amber-600")}
+                        className={cn("h-16 w-16 rounded-2xl border-2 shrink-0 shadow-xl", alertEnabled && "bg-amber-500 border-amber-500 hover:bg-amber-600")}
                         onClick={() => toggleAlert(deal.id)}
+                        title={alertEnabled ? "Disable Alerts" : "Enable Alerts"}
                      >
                         <Bell className={cn("w-6 h-6", alertEnabled && "fill-current")} />
                      </Button>
@@ -173,7 +167,6 @@ export const DealDetails = () => {
                   <p className={cn("font-bold", isExpired ? "text-red-500" : "text-emerald-500")}>
                     {isExpired ? "Deal Expired" : "Currently in Stock"}
                   </p>
-
                </div>
             </div>
           </div>
@@ -182,4 +175,3 @@ export const DealDetails = () => {
     </main>
   );
 };
-
