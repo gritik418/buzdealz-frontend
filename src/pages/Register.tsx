@@ -1,7 +1,8 @@
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '@/lib/api';
+import { useWishlist } from '@/store/useWishlist';
 import { Button } from '@/components/ui/Button';
 import { Mail, Lock, ShoppingBag, Loader2, UserPlus, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -9,10 +10,17 @@ import { gsap } from 'gsap';
 
 export const Register = () => {
   const [, setLocation] = useLocation();
+  const { isAuthenticated } = useWishlist();
   const formRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLocation('/');
+    }
+  }, [isAuthenticated, setLocation]);
   
   const [email, setEmail] = useState('');
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
