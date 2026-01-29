@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Mail, Lock, ShoppingBag, Loader2, UserPlus, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { gsap } from 'gsap';
+import { cn } from '@/lib/utils';
+
 
 export const Register = () => {
   const [, setLocation] = useLocation();
@@ -26,6 +28,7 @@ export const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [backendErrors, setBackendErrors] = useState<Record<string, string>>({});
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -56,25 +59,33 @@ export const Register = () => {
         toast.success('Account created successfully!');
         setLocation('/login');
       } else {
+        setBackendErrors(data.errors || {});
         toast.error(data.message || 'Registration failed');
       }
     },
     onError: (error: any) => {
+      const serverErrors = error.response?.data?.errors;
+      if (serverErrors) {
+        setBackendErrors(serverErrors);
+      }
       toast.error(error.response?.data?.message || 'Failed to create account. Please try again.');
     }
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setBackendErrors({});
     if (!name || !username || !email || !password || !confirmPassword) {
       toast.error('Please fill in all fields');
       return;
     }
     if (password !== confirmPassword) {
+      setBackendErrors({ passwordConfirmation: 'Passwords do not match' });
       toast.error('Passwords do not match');
       return;
     }
     if (password.length < 8) {
+      setBackendErrors({ password: 'Password must be at least 8 characters' });
       toast.error('Password must be at least 8 characters');
       return;
     }
@@ -149,11 +160,18 @@ export const Register = () => {
                   <input 
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (backendErrors.name) setBackendErrors({...backendErrors, name: ''});
+                    }}
                     placeholder="Enter your name"
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                    className={cn(
+                      "w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300",
+                      backendErrors.name ? "border-red-500 focus:border-red-500 focus:ring-red-500/10" : "border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10"
+                    )}
                   />
                 </div>
+                {backendErrors.name && <p className="text-[10px] font-bold text-red-500 ml-1">{backendErrors.name}</p>}
               </div>
 
               <div className="space-y-1.5">
@@ -165,11 +183,18 @@ export const Register = () => {
                   <input 
                     type="text"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                    onChange={(e) => {
+                      setUsername(e.target.value.toLowerCase());
+                      if (backendErrors.username) setBackendErrors({...backendErrors, username: ''});
+                    }}
                     placeholder="unique_handle"
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                    className={cn(
+                      "w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300",
+                      backendErrors.username ? "border-red-500 focus:border-red-500 focus:ring-red-500/10" : "border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10"
+                    )}
                   />
                 </div>
+                {backendErrors.username && <p className="text-[10px] font-bold text-red-500 ml-1">{backendErrors.username}</p>}
               </div>
 
               <div className="space-y-1.5">
@@ -179,11 +204,18 @@ export const Register = () => {
                   <input 
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (backendErrors.email) setBackendErrors({...backendErrors, email: ''});
+                    }}
                     placeholder="name@company.com"
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                    className={cn(
+                      "w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300",
+                      backendErrors.email ? "border-red-500 focus:border-red-500 focus:ring-red-500/10" : "border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10"
+                    )}
                   />
                 </div>
+                {backendErrors.email && <p className="text-[10px] font-bold text-red-500 ml-1">{backendErrors.email}</p>}
               </div>
 
 
@@ -194,9 +226,15 @@ export const Register = () => {
                   <input 
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 6 characters"
-                    className="w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (backendErrors.password) setBackendErrors({...backendErrors, password: ''});
+                    }}
+                    placeholder="At least 8 characters"
+                    className={cn(
+                      "w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300",
+                      backendErrors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500/10" : "border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10"
+                    )}
                   />
                   <button
                     type="button"
@@ -206,6 +244,7 @@ export const Register = () => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                {backendErrors.password && <p className="text-[10px] font-bold text-red-500 ml-1">{backendErrors.password}</p>}
               </div>
 
               <div className="space-y-2">
@@ -215,9 +254,15 @@ export const Register = () => {
                   <input 
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      if (backendErrors.passwordConfirmation) setBackendErrors({...backendErrors, passwordConfirmation: ''});
+                    }}
                     placeholder="••••••••"
-                    className="w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                    className={cn(
+                      "w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300",
+                      backendErrors.passwordConfirmation ? "border-red-500 focus:border-red-500 focus:ring-red-500/10" : "border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10"
+                    )}
                   />
                   <button
                     type="button"
@@ -227,6 +272,7 @@ export const Register = () => {
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                {backendErrors.passwordConfirmation && <p className="text-[10px] font-bold text-red-500 ml-1">{backendErrors.passwordConfirmation}</p>}
               </div>
 
               <Button 
@@ -241,6 +287,7 @@ export const Register = () => {
                 )}
               </Button>
             </form>
+
 
             <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <p className="text-slate-500 font-bold">

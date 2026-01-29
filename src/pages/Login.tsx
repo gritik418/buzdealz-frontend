@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Mail, Lock, ShoppingBag, ArrowRight, Loader2, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { gsap } from 'gsap';
+import { cn } from '@/lib/utils';
+
 
 export const Login = () => {
   const [, setLocation] = useLocation();
@@ -17,6 +19,7 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [backendErrors, setBackendErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -54,22 +57,29 @@ export const Login = () => {
         toast.success('Welcome back!');
         setLocation('/');
       } else {
+        setBackendErrors(data.errors || {});
         toast.error(data.message || 'Login failed');
       }
     },
     onError: (error: any) => {
+      const serverErrors = error.response?.data?.errors;
+      if (serverErrors) {
+        setBackendErrors(serverErrors);
+      }
       toast.error(error.response?.data?.message || 'Something went wrong. Please try again.');
     }
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setBackendErrors({});
     if (!email || !password) {
       toast.error('Please fill in all fields');
       return;
     }
     loginMutation.mutate({ email, password });
   };
+
 
   return (
     <main ref={formRef} className="min-h-[calc(100vh-80px)] bg-white relative overflow-hidden flex items-center justify-center px-6 py-12">
@@ -100,11 +110,18 @@ export const Login = () => {
                 <input 
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (backendErrors.email) setBackendErrors({...backendErrors, email: ''});
+                  }}
                   placeholder="name@company.com"
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                  className={cn(
+                    "w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300",
+                    backendErrors.email ? "border-red-500 focus:border-red-500 focus:ring-red-500/10" : "border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10"
+                  )}
                 />
               </div>
+              {backendErrors.email && <p className="text-[10px] font-bold text-red-500 ml-1">{backendErrors.email}</p>}
             </div>
 
             <div className="space-y-2">
@@ -117,9 +134,15 @@ export const Login = () => {
                 <input 
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (backendErrors.password) setBackendErrors({...backendErrors, password: ''});
+                  }}
                   placeholder="••••••••"
-                  className="w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                  className={cn(
+                    "w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300",
+                    backendErrors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500/10" : "border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10"
+                  )}
                 />
                 <button
                   type="button"
@@ -129,6 +152,7 @@ export const Login = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {backendErrors.password && <p className="text-[10px] font-bold text-red-500 ml-1">{backendErrors.password}</p>}
             </div>
 
             <Button 
@@ -143,6 +167,7 @@ export const Login = () => {
               )}
             </Button>
           </form>
+
 
           <div className="mt-8 pt-8 border-t border-slate-100 text-center">
             <p className="text-slate-500 font-bold">
