@@ -127,8 +127,8 @@ export const Login = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Password</label>
-                <a href="#" className="text-xs font-black text-primary-600 hover:text-primary-700">Forgot?</a>
               </div>
+
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary-600 transition-colors" />
                 <input 
