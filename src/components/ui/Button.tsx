@@ -1,5 +1,5 @@
-import { ButtonHTMLAttributes, forwardRef } from "react";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { type ButtonHTMLAttributes, forwardRef } from "react";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 

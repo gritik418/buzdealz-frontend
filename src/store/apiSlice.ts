@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Deal, WishlistItem, User } from '../types';
+import type{ Deal, WishlistItem } from '../types/index';
 
 export const apiSlice = createApi({
   reducerPath: 'api',

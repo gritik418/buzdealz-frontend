@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Route, Switch } from 'wouter';
+import { WishlistProvider } from '@/store/useWishlist';
+import { Navbar } from '@/components/feature/Navbar';
+import { Home } from '@/pages/Home';
+import { Wishlist } from '@/pages/Wishlist';
+import { Toaster } from 'sonner';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <WishlistProvider>
+      <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <Navbar />
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/wishlist" component={Wishlist} />
+          {/* Fallback 404 */}
+          <Route>
+            <div className="p-20 text-center">
+               <h1 className="text-4xl font-bold mb-4">404</h1>
+               <p>Page not found</p>
+            </div>
+          </Route>
+        </Switch>
+        <Toaster position="bottom-right" />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </WishlistProvider>
+  );
 }
 
-export default App
+export default App;
