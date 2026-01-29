@@ -41,7 +41,7 @@ export const DealCard = ({ deal }: DealCardProps) => {
       <Card className="h-full overflow-hidden flex flex-col relative border-slate-100 bg-white shadow-sm hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-500 rounded-2xl border-2 hover:border-primary-100">
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
           <img 
-            src={deal.image || "/Users/ritikgupta/.gemini/antigravity/brain/e9d6a55b-23fe-4390-8d0a-be2cf7d20845/placeholder_deal_1769154352834.png"} 
+            src={deal.image || "/placeholder.png"} 
             alt={deal.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
           />

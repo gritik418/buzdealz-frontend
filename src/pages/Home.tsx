@@ -137,7 +137,7 @@ export const Home = () => {
                <div className="absolute -inset-4 bg-gradient-to-tr from-primary-500 to-violet-500 opacity-10 blur-3xl rounded-[3rem]" />
                <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white shadow-2xl">
                  <img 
-                    src="/Users/ritikgupta/.gemini/antigravity/brain/e9d6a55b-23fe-4390-8d0a-be2cf7d20845/hero_shopping_deals_1769154352834.png" 
+                    src="/hero.png" 
                     alt="Premium Shopping" 
                     className="w-full object-cover scale-105"
                  />
