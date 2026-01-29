@@ -3,6 +3,7 @@ import { WishlistProvider } from '@/store/useWishlist';
 import { Navbar } from '@/components/feature/Navbar';
 import { Home } from '@/pages/Home';
 import { Wishlist } from '@/pages/Wishlist';
+import { DealDetails } from '@/pages/DealDetails';
 import { Toaster } from 'sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -24,6 +25,7 @@ function App() {
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/wishlist" component={Wishlist} />
+            <Route path="/deal/:id" component={DealDetails} />
             {/* Fallback 404 */}
             <Route>
               <div className="p-20 text-center">
