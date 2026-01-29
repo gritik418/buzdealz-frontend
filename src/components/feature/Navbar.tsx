@@ -68,9 +68,8 @@ export const Navbar = () => {
            {/* Desktop Nav */}
            <nav className="hidden lg:flex items-center gap-8 ml-4">
              <NavLink href="/" isActive={location === '/'}>Deals</NavLink>
-             <NavLink href="/categories" isActive={location === '/categories'}>Categories</NavLink>
-             <NavLink href="/stores" isActive={location === '/stores'}>Stores</NavLink>
            </nav>
+
         </div>
 
         {/* Desktop Search */}

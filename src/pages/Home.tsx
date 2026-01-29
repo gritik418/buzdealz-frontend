@@ -1,23 +1,15 @@
-import { useLayoutEffect, useRef } from 'react';
 import { DealCard } from '@/components/feature/DealCard';
-import { useQuery } from '@tanstack/react-query';
-import { dealsApi } from '@/lib/api';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { dealsApi } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Zap, ShieldCheck, Clock, ArrowRight, Mail, LayoutGrid, Laptop, Shirt, Home as HomeIcon, Smartphone, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { cn } from '@/lib/utils';
+import { ArrowRight, Loader2, Mail, Zap } from 'lucide-react';
+import { useLayoutEffect, useRef } from 'react';
+
 
 gsap.registerPlugin(ScrollTrigger);
-
-const CATEGORIES = [
-  { name: 'Electronics', icon: Laptop, color: 'text-blue-600', bg: 'bg-blue-50' },
-  { name: 'Fashion', icon: Shirt, color: 'text-rose-600', bg: 'bg-rose-50' },
-  { name: 'Home', icon: HomeIcon, color: 'text-amber-600', bg: 'bg-amber-50' },
-  { name: 'Gaming', icon: LayoutGrid, color: 'text-violet-600', bg: 'bg-violet-50' },
-  { name: 'Mobile', icon: Smartphone, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-];
 
 export const Home = () => {
   const mainRef = useRef<HTMLDivElement>(null);
@@ -53,19 +45,6 @@ export const Home = () => {
         stagger: 0.5
       });
 
-      // Categories staggered entrance
-      gsap.from('.category-pill', {
-        scrollTrigger: {
-          trigger: '.categories-section',
-          start: 'top 80%',
-        },
-        y: 20,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 0.6,
-        ease: 'power2.out'
-      });
-
       if (!isLoading && deals.length > 0) {
         // Grid Animation
         gsap.from('.deal-card-wrapper', {
@@ -82,7 +61,7 @@ export const Home = () => {
         });
       }
 
-      // Features section staggered entrance
+      // Gold Standard section entrance
       gsap.from('.feature-card', {
         scrollTrigger: {
           trigger: '.features-section',
@@ -90,9 +69,9 @@ export const Home = () => {
         },
         y: 40,
         opacity: 0,
-        stagger: 0.2,
+        stagger: 0.15,
         duration: 0.8,
-        ease: 'back.out(1.7)'
+        ease: 'power3.out'
       });
 
     }, mainRef);
@@ -131,14 +110,6 @@ export const Home = () => {
                 Buzdealz tracks thousands of exclusive discounts across premium brands so you never overpay again.
               </p>
 
-              <div className="flex flex-wrap items-center gap-5">
-                 <Button className="h-14 px-8 rounded-2xl bg-slate-900 hover:bg-black text-white text-lg font-black shadow-2xl shadow-slate-900/20 group">
-                    Explore Deals <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                 </Button>
-                 <Button variant="ghost" className="h-14 px-8 rounded-2xl text-slate-600 text-lg font-bold border-2 border-slate-100 bg-white shadow-sm hover:border-primary-100 hover:text-primary-600">
-                    How it Works
-                 </Button>
-              </div>
             </div>
 
             <div className="hero-image-container relative">
@@ -166,52 +137,15 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Categories Pills */}
-      <section className="categories-section py-12 border-y border-slate-100">
-        <div className="container mx-auto px-6 max-w-7xl">
-           <div className="flex flex-wrap justify-center gap-4">
-              {CATEGORIES.map((cat) => (
-                <button key={cat.name} className="category-pill group flex items-center gap-3 px-6 py-3 rounded-2xl border-2 border-slate-100 hover:border-primary-200 hover:bg-primary-50 transition-all duration-300">
-                   <div className={cn("p-2 rounded-xl transition-colors", cat.bg)}>
-                      <cat.icon className={cn("w-5 h-5", cat.color)} />
-                   </div>
-                   <span className="font-bold text-slate-700 group-hover:text-primary-700">{cat.name}</span>
-                </button>
-              ))}
-           </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="features-section py-24 bg-slate-50/50">
-        <div className="container mx-auto px-6 max-w-7xl text-center">
-           <h2 className="text-sm font-black text-primary-600 tracking-[0.3em] uppercase mb-4">Why Buzdealz</h2>
-           <h3 className="text-4xl font-black text-slate-900 mb-16">The gold standard in deal hunting.</h3>
-           
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { title: 'Real-time Monitoring', desc: 'Our crawlers check retail prices every 60 seconds for verified drops.', icon: Zap },
-                { title: 'Verified Merchants', desc: 'We only track reputable stores to ensure you get authentic products.', icon: ShieldCheck },
-                { title: 'Historical Tracking', desc: 'Every deal includes a price history to ensure it is actually a good value.', icon: Clock }
-              ].map((feature, i) => (
-                <div key={i} className="feature-card p-10 bg-white rounded-3xl border-2 border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 text-left">
-                   <div className="w-14 h-14 rounded-2xl bg-primary-100 flex items-center justify-center text-primary-600 mb-6">
-                      <feature.icon className="w-8 h-8" />
-                   </div>
-                   <h4 className="text-xl font-black text-slate-900 mb-3">{feature.title}</h4>
-                   <p className="text-slate-500 font-medium leading-relaxed">{feature.desc}</p>
-                </div>
-              ))}
-           </div>
-        </div>
-      </section>
 
       {/* Featured Deals Grid */}
-      <section className="py-24 px-6 overflow-visible">
-        <div className="container mx-auto max-w-7xl">
+      <section className="py-24 px-6 overflow-visible max-w-7xl mx-auto">
+        <div className="container mx-auto">
           <div className="flex items-end justify-between mb-16 px-2">
             <div>
-              <h2 className="text-sm font-black text-primary-600 tracking-[0.3em] uppercase mb-4">Curated Selection</h2>
+              <Badge className="bg-primary-50 text-primary-600 border-primary-100 mb-4 px-4 py-1.5 rounded-full font-black uppercase text-[10px] tracking-widest">
+                 Premium Curated Selection
+              </Badge>
               <h3 className="text-5xl font-black text-slate-900 tracking-tight leading-none">Today's Hot Picks</h3>
               <p className="text-slate-400 mt-4 text-lg font-bold">Limited time offers, moving fast.</p>
             </div>
@@ -237,7 +171,6 @@ export const Home = () => {
                 </div>
               ))}
             </div>
-
           )}
         </div>
       </section>
@@ -270,4 +203,3 @@ export const Home = () => {
     </main>
   );
 };
-

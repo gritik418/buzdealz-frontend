@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { dealsApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Heart, Bell, ShoppingBag, ExternalLink, Clock, ShieldCheck, ChevronLeft, TrendingDown, Loader2 } from 'lucide-react';
+import { Heart, Bell, ShoppingBag, ExternalLink, ShieldCheck, ChevronLeft, TrendingDown, Loader2 } from 'lucide-react';
+
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -94,10 +95,9 @@ export const DealDetails = () => {
                  {deal.title}
                </h1>
                <div className="flex items-center gap-4 text-slate-400 font-bold">
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> Expires {new Date(deal.expiryDate).toLocaleDateString()}</span>
-                  <span>•</span>
                   <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Verified Deal</span>
                </div>
+
             </div>
 
             <div className="bg-slate-50 rounded-[2.5rem] p-8 mb-8 border-2 border-slate-100">
@@ -173,7 +173,7 @@ export const DealDetails = () => {
                   <p className={cn("font-bold", isExpired ? "text-red-500" : "text-emerald-500")}>
                     {isExpired ? "Deal Expired" : "Currently in Stock"}
                   </p>
-                  <p className="text-sm text-slate-400 mt-1">Updated 4 minutes ago.</p>
+
                </div>
             </div>
           </div>
