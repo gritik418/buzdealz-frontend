@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/lib/api';
 import { useWishlist } from '@/store/useWishlist';
 import { Button } from '@/components/ui/Button';
-import { Mail, Lock, ShoppingBag, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { Mail, Lock, ShoppingBag, ArrowRight, Loader2, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { gsap } from 'gsap';
 
@@ -14,15 +14,15 @@ export const Login = () => {
   const { isAuthenticated } = useWishlist();
   const formRef = useRef<HTMLDivElement>(null);
   
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     if (isAuthenticated) {
       setLocation('/');
     }
   }, [isAuthenticated, setLocation]);
-
-  const [email, setEmail] = useState('');
-
-  const [password, setPassword] = useState('');
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -48,7 +48,7 @@ export const Login = () => {
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ['me'] });
         toast.success('Welcome back!');
@@ -115,12 +115,19 @@ export const Login = () => {
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary-600 transition-colors" />
                 <input 
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                  className="w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 

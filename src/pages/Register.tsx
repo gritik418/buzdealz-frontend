@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { authApi } from '@/lib/api';
 import { useWishlist } from '@/store/useWishlist';
 import { Button } from '@/components/ui/Button';
-import { Mail, Lock, ShoppingBag, Loader2, UserPlus, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, ShoppingBag, Loader2, UserPlus, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { gsap } from 'gsap';
 
@@ -20,9 +20,10 @@ export const Register = () => {
   }, [isAuthenticated, setLocation]);
   
   const [email, setEmail] = useState('');
-
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -48,7 +49,7 @@ export const Register = () => {
 
   const registerMutation = useMutation({
     mutationFn: authApi.register,
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       if (data.success) {
         toast.success('Account created successfully!');
         setLocation('/login');
@@ -86,39 +87,51 @@ export const Register = () => {
         <div className="hero-blob absolute bottom-[-15%] right-[-10%] w-[50%] aspect-square bg-primary-100/50 rounded-full blur-[120px]" />
       </div>
 
-      <div className="register-card w-full max-w-lg grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10 transition-all">
+      <div className="register-card w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 relative z-10 items-center">
         {/* Left Side: Marketing/Value Prop */}
-        <div className="hidden lg:flex flex-col justify-center">
-           <Link href="/" className="inline-flex items-center gap-3 mb-10 group">
+        <div className="hidden lg:flex flex-col justify-center animate-in fade-in slide-in-from-left-8 duration-700">
+           <Link href="/" className="inline-flex items-center gap-3 mb-10 group w-fit">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-700 flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform">
                 <ShoppingBag className="w-7 h-7" />
               </div>
               <span className="font-black text-3xl tracking-tighter text-slate-900">Buzdealz</span>
            </Link>
            
-           <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-none mb-8">
-             Join the elite tier of <span className="text-primary-600">shoppers.</span>
+           <h1 className="text-5xl xl:text-7xl font-black text-slate-900 tracking-tight leading-[0.9] mb-8">
+             Join the elite tier of <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">shoppers.</span>
            </h1>
            
-           <div className="space-y-6">
+           <div className="space-y-6 max-w-lg">
               {[
-                'Real-time price drop notifications',
-                'Advanced historical price tracking',
-                'Verified exclusive premium deals',
-                'Customizable wishlist alerts'
-              ].map((text, i) => (
-                <div key={i} className="flex items-center gap-3">
-                   <CheckCircle2 className="w-6 h-6 text-emerald-500 fill-emerald-50" />
-                   <span className="font-bold text-slate-600">{text}</span>
+                { title: 'Real-time Notifications', desc: 'Get alerted the second a price drops.' },
+                { title: 'Price History', desc: 'See if a deal is actually a good value.' },
+                { title: 'Verified Deals', desc: 'Zero spam. Only authentic premium offers.' }
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-4">
+                   <div className="mt-1 flex-shrink-0">
+                      <CheckCircle2 className="w-6 h-6 text-emerald-500 fill-emerald-50" />
+                   </div>
+                   <div>
+                      <p className="font-black text-slate-900 text-lg leading-none mb-1">{item.title}</p>
+                      <p className="font-bold text-slate-500">{item.desc}</p>
+                   </div>
                 </div>
               ))}
            </div>
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full">
+        <div className="w-full max-w-md mx-auto">
+          <div className="lg:hidden text-center mb-8">
+             <Link href="/" className="inline-flex items-center gap-2 mb-4">
+                <ShoppingBag className="w-6 h-6 text-primary-600" />
+                <span className="font-black text-xl tracking-tighter text-slate-900">Buzdealz</span>
+             </Link>
+             <h2 className="text-3xl font-black text-slate-900 tracking-tight">Create Account</h2>
+          </div>
+
           <div className="bg-white/70 backdrop-blur-3xl p-8 rounded-[2.5rem] border-2 border-white shadow-2xl shadow-slate-200/50">
-            <div className="text-center lg:text-left mb-8">
+            <div className="hidden lg:block mb-8">
                 <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Create Account</h2>
                 <p className="text-slate-500 font-bold">Start saving hundreds on your favorite brands.</p>
             </div>
@@ -143,12 +156,19 @@ export const Register = () => {
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary-600 transition-colors" />
                   <input 
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                    className="w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 
@@ -157,12 +177,19 @@ export const Register = () => {
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary-600 transition-colors" />
                   <input 
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
+                    className="w-full h-14 pl-12 pr-12 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all font-bold text-slate-900 placeholder:text-slate-300"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary-600 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
 
@@ -179,7 +206,7 @@ export const Register = () => {
               </Button>
             </form>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 text-center lg:text-left">
+            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <p className="text-slate-500 font-bold">
                 Already have an account? <Link href="/login" className="text-primary-600 hover:text-primary-700 underline underline-offset-4">Sign in here</Link>
               </p>
