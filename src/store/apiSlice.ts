@@ -1,59 +1,62 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type{ Deal, WishlistItem } from '../types/index';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { Deal, WishlistItem } from "../types/index";
 
 export const apiSlice = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ 
-    baseUrl: 'http://localhost:8000/api',
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_API_BASE_URL,
     prepareHeaders: (headers) => {
-        return headers;
+      return headers;
     },
   }),
-  tagTypes: ['Deal', 'Wishlist', 'User'],
+  tagTypes: ["Deal", "Wishlist", "User"],
   endpoints: (builder) => ({
     getDeals: builder.query<Deal[], void>({
-      query: () => '/deals',
+      query: () => "/deals",
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Deal' as const, id })),
-              { type: 'Deal', id: 'LIST' },
+              ...result.map(({ id }) => ({ type: "Deal" as const, id })),
+              { type: "Deal", id: "LIST" },
             ]
-          : [{ type: 'Deal', id: 'LIST' }],
+          : [{ type: "Deal", id: "LIST" }],
     }),
     getWishlist: builder.query<WishlistItem[], void>({
-      query: () => '/wishlist',
-      providesTags: ['Wishlist'],
+      query: () => "/wishlist",
+      providesTags: ["Wishlist"],
     }),
-    addToWishlist: builder.mutation<void, { dealId: number; alertEnabled?: boolean }>({
+    addToWishlist: builder.mutation<
+      void,
+      { dealId: number; alertEnabled?: boolean }
+    >({
       query: (body) => ({
-        url: '/wishlist',
-        method: 'POST',
+        url: "/wishlist",
+        method: "POST",
         body,
       }),
-      invalidatesTags: ['Wishlist'],
+      invalidatesTags: ["Wishlist"],
     }),
     removeFromWishlist: builder.mutation<void, number>({
       query: (dealId) => ({
         url: `/wishlist/${dealId}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Wishlist'],
+      invalidatesTags: ["Wishlist"],
     }),
     register: builder.mutation<{ success: boolean; message: string }, any>({
-        query: (credentials) => ({
-            url: '/auth/register',
-            method: 'POST',
-            body: credentials
-        })
-    })
+      query: (credentials) => ({
+        url: "/auth/register",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
   }),
 });
 
-export const { 
-    useGetDealsQuery, 
-    useGetWishlistQuery, 
-    useAddToWishlistMutation, 
-    useRemoveFromWishlistMutation,
-    useRegisterMutation
+export const {
+  useGetDealsQuery,
+  useGetWishlistQuery,
+  useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
+  useRegisterMutation,
 } = apiSlice;

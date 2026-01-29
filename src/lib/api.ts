@@ -1,16 +1,19 @@
-import axios from 'axios';
-import type { Deal, WishlistItem } from '../types';
+import axios from "axios";
+import type { Deal, WishlistItem } from "../types";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
 
 const mapBackendDeal = (d: any): Deal => {
   const price = parseFloat(d.price);
   const originalPrice = d.originalPrice ? parseFloat(d.originalPrice) : price;
-  const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-  
+  const discount =
+    originalPrice > price
+      ? Math.round(((originalPrice - price) / originalPrice) * 100)
+      : 0;
+
   return {
     id: d.id.toString(),
     title: d.title,
@@ -28,30 +31,29 @@ const mapBackendDeal = (d: any): Deal => {
 export const authApi = {
   getMe: async () => {
     try {
-      const { data } = await api.get('/auth/me');
+      const { data } = await api.get("/auth/me");
       return data.data; // Backend returns { success: true, data: user }
     } catch (error) {
       return null;
     }
   },
   login: async (credentials: any) => {
-    const { data } = await api.post('/auth/login', credentials);
+    const { data } = await api.post("/auth/login", credentials);
     return data;
   },
   register: async (userData: any) => {
-    const { data } = await api.post('/auth/register', userData);
+    const { data } = await api.post("/auth/register", userData);
     return data;
   },
   logout: async () => {
-
-    const { data } = await api.post('/auth/logout');
+    const { data } = await api.post("/auth/logout");
     return data;
-  }
+  },
 };
 
 export const wishlistApi = {
   getWishlist: async () => {
-    const { data } = await api.get('/wishlist');
+    const { data } = await api.get("/wishlist");
     return data.data.map((item: any) => {
       const deal = mapBackendDeal(item.deal);
       return {
@@ -62,7 +64,10 @@ export const wishlistApi = {
     }) as WishlistItem[];
   },
   addToWishlist: async (dealId: string, alertEnabled: boolean = false) => {
-    const { data } = await api.post('/wishlist', { dealId: parseInt(dealId), alertEnabled });
+    const { data } = await api.post("/wishlist", {
+      dealId: parseInt(dealId),
+      alertEnabled,
+    });
     return data;
   },
   removeFromWishlist: async (dealId: string) => {
@@ -70,31 +75,35 @@ export const wishlistApi = {
     return data;
   },
   toggleAlert: async (dealId: string, enabled: boolean) => {
-    const { data } = await api.post('/wishlist', { dealId: parseInt(dealId), alertEnabled: enabled });
+    const { data } = await api.post("/wishlist", {
+      dealId: parseInt(dealId),
+      alertEnabled: enabled,
+    });
     return data;
   },
 };
 
 export const dealsApi = {
   getDeals: async () => {
-    const { data } = await api.get('/deals');
+    const { data } = await api.get("/deals");
     return data.data.map(mapBackendDeal);
   },
   getDeal: async (id: string) => {
-    const { data } = await api.get('/deals');
-    const backendDeal = data.data.find((d: any) => d.id.toString() === id.toString());
+    const { data } = await api.get("/deals");
+    const backendDeal = data.data.find(
+      (d: any) => d.id.toString() === id.toString(),
+    );
     return backendDeal ? mapBackendDeal(backendDeal) : null;
   },
 };
 
 export const notificationsApi = {
   getNotifications: async () => {
-    const { data } = await api.get('/notifications');
+    const { data } = await api.get("/notifications");
     return data.data; // Array of notifications
   },
   markAsRead: async () => {
-    const { data } = await api.post('/notifications/mark-as-read');
+    const { data } = await api.post("/notifications/mark-as-read");
     return data;
-  }
+  },
 };
-
